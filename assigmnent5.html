@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JavaScript Programs</title>
+</head>
+<body>
+
+<!-- i -->
+<h3>i. Arithmetic Operations</h3>
+<input type="number" id="num1" placeholder="Enter first number">
+<input type="number" id="num2" placeholder="Enter second number">
+<button onclick="calculate()">Calculate</button>
+<p id="result1"></p>
+<script>
+function calculate() {
+  let a = parseFloat(document.getElementById("num1").value);
+  let b = parseFloat(document.getElementById("num2").value);
+  document.getElementById("result1").innerHTML =
+    "Sum: " + (a+b) + "<br>Difference: " + (a-b) +
+    "<br>Product: " + (a*b) + "<br>Quotient: " + (a/b);
+}
+</script>
+
+<!-- ii -->
+<h3>ii. Array Operations</h3>
+<script>
+let arr = [12, 5, 8, 20, 3];
+let largest = Math.max(...arr);
+let smallest = Math.min(...arr);
+let ascending = [...arr].sort((a,b)=>a-b);
+let descending = [...arr].sort((a,b)=>b-a);
+document.write("Array: " + arr + "<br>");
+document.write("Largest: " + largest + "<br>");
+document.write("Smallest: " + smallest + "<br>");
+document.write("Ascending: " + ascending + "<br>");
+document.write("Descending: " + descending + "<br><br>");
+</script>
+
+<!-- iii -->
+<h3>iii. Form Validation</h3>
+<form onsubmit="return validateForm()">
+  Name: <input type="text" id="name"><br>
+  Email: <input type="text" id="email"><br>
+  Age: <input type="number" id="age"><br>
+  <button type="submit">Submit</button>
+</form>
+<p id="result3"></p>
+<script>
+function validateForm() {
+  let name = document.getElementById("name").value.trim();
+  let email = document.getElementById("email").value.trim();
+  let age = parseInt(document.getElementById("age").value);
+  let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(name==="") { alert("Name cannot be empty"); return false; }
+  if(!emailPattern.test(email)) { alert("Invalid email"); return false; }
+  if(isNaN(age) || age<18 || age>100) { alert("Age must be between 18 and 100"); return false; }
+  document.getElementById("result3").innerHTML = "Form submitted successfully";
+  return false;
+}
+</script>
+
+<!-- iv -->
+<h3>iv. Student Object</h3>
+<script>
+let student = {name:"John", age:20, grades:85};
+student.class="10th";
+student.grades=90;
+for(let key in student){ document.write(key + ": " + student[key] + "<br>"); }
+document.write("<br>");
+</script>
+
+<!-- v -->
+<h3>v. Array Methods</h3>
+<script>
+function processArray(arr) {
+  return arr.filter(n=>n%2===0).map(n=>n*2).reduce((a,b)=>a+b,0);
+}
+let nums=[1,2,3,4,5,6];
+document.write("Original: "+nums+"<br>");
+document.write("Result: "+processArray(nums)+"<br>");
+</script>
+
+</body>
+</html>
