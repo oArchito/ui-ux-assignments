@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Travel Packages & Booking</title>
+    <style>
+      :root {
+        --accent: #0b76ef;
+        --muted: #666;
+      }
+
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        font-family: Inter, Segoe UI, Helvetica, Arial, sans-serif;
+        margin: 0;
+        color: #222;
+        background: #f7f8fb;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 12px 20px;
+        z-index: 10;
+      }
+
+      nav a {
+        margin-right: 16px;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 6px 8px;
+        border-radius: 6px;
+      }
+
+      nav a.active {
+        color: #fff;
+        background: var(--accent);
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 28px;
+        padding: 24px;
+        max-width: 1200px;
+        margin: 20px auto;
+      }
+
+      section {
+        background: #fff;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(10,10,10,0.04);
+      }
+
+      h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      .gallery {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .thumb {
+        width: 140px;
+        height: 96px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal img {
+        max-width: 90vw;
+        max-height: 80vh;
+        border-radius: 8px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      }
+
+      form .row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      label {
+        font-size: 13px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      input, select, button {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+
+      .total {
+        font-size: 18px;
+        font-weight: 700;
+        margin-top: 12px;
+      }
+
+      .disabled {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      @media (max-width: 980px) {
+        main {
+          grid-template-columns: 1fr;
+          padding: 16px;
+        }
+
+        header {
+          position: relative;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav id="topnav">
+        <a href="#packages" data-scroll>Packages</a>
+        <a href="#booking" data-scroll>Booking</a>
+        <a href="#gallery" data-scroll>Gallery</a>
+      </nav>
+    </header>
+
+    <main>
+      <div>
+        <section id="packages">
+          <h2>Packages</h2>
+          <table id="packagesTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Destination</th>
+                <th>Days</th>
+                <th>Base Price</th>
+                <th>Season</th>
+                <th>Final Price</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="gallery" style="margin-top:18px">
+          <h2>Gallery</h2>
+          <div class="gallery" id="galleryEl"></div>
+        </section>
+      </div>
+
+      <aside>
+        <section id="booking">
+          <h2>Booking Price Estimator</h2>
+
+          <form id="bookingForm" novalidate>
+            <div class="row">
+              <div style="flex:1">
+                <label for="pkgSelect">Package</label>
+                <select id="pkgSelect" required></select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div style="flex:1">
+                <label for="checkIn">Check-in</label>
+                <input type="date" id="checkIn" required />
+              </div>
+
+              <div style="flex:1">
+                <label for="checkOut">Check-out</label>
+                <input type="date" id="checkOut" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div style="flex:1">
+                <label for="guests">Guests</label>
+                <input type="number" id="guests" min="1" value="2" required />
+              </div>
+
+              <div style="flex:1">
+                <label for="promo">Promo Code</label>
+                <input id="promo" placeholder="EARLYBIRD" />
+              </div>
+            </div>
+
+            <div class="row">
+              <button id="estimateBtn" type="button">Estimate</button>
+              <button id="submitBtn" type="submit">Submit</button>
+            </div>
+
+            <div class="total">Estimated Total: <span id="totalVal">₹0.00</span></div>
+          </form>
+        </section>
+      </aside>
+    </main>
+
+    <div class="modal" id="imgModal" aria-hidden="true">
+      <img id="modalImg" alt="" />
+      <button id="closeModal" style="position:absolute;top:16px;right:16px;padding:8px;border-radius:6px;">Close</button>
+    </div>
+
+    <script>
+      const packages = [
+        { id: 1, destination: 'Goa', durationDays: 3, basePrice: 8000, season: 'peak', thumb: 'https://via.placeholder.com/300x200?text=Goa' },
+        { id: 2, destination: 'Manali', durationDays: 5, basePrice: 15000, season: 'shoulder', thumb: 'https://via.placeholder.com/300x200?text=Manali' },
+        { id: 3, destination: 'Andaman', durationDays: 4, basePrice: 22000, season: 'peak', thumb: 'https://via.placeholder.com/300x200?text=Andaman' },
+        { id: 4, destination: 'Rishikesh', durationDays: 2, basePrice: 6000, season: 'off', thumb: 'https://via.placeholder.com/300x200?text=Rishikesh' },
+        { id: 5, destination: 'Jaipur', durationDays: 3, basePrice: 9000, season: 'shoulder', thumb: 'https://via.placeholder.com/300x200?text=Jaipur' }
+      ];
+
+      function seasonMultiplier(season) {
+        switch (season) {
+          case 'peak':
+            return 1.25;
+          case 'off':
+            return 0.85;
+          case 'shoulder':
+            return 1.0;
+          default:
+            return 1.0;
+        }
+      }
+
+      function computeFinalPrice(pkg) {
+        const base = pkg.basePrice;
+        const mult = seasonMultiplier(pkg.season);
+        const weekendSurcharge = 0.10;
+
+        const appliesWeekend = pkg.durationDays >= 2 && (pkg.durationDays % 7 !== 0);
+        const final = base * mult * (appliesWeekend ? (1 + weekendSurcharge) : 1);
+
+        return Math.round(final);
+      }
+
+      function renderPackages() {
+        const tbody = document.querySelector('#packagesTable tbody');
+        tbody.innerHTML = '';
+
+        packages.forEach(p => {
+          const tr = document.createElement('tr');
+          const final = computeFinalPrice(p);
+
+          tr.innerHTML = `
+            <td>${p.id}</td>
+            <td>${p.destination}</td>
+            <td>${p.durationDays}</td>
+            <td>₹${p.basePrice.toLocaleString()}</td>
+            <td>${p.season}</td>
+            <td>₹${final.toLocaleString()}</td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function populateSelect() {
+        const sel = document.getElementById('pkgSelect');
+        sel.innerHTML = '';
+
+        packages.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.destination} — ${p.durationDays} days`;
+          sel.appendChild(opt);
+        });
+      }
+
+      function renderGallery() {
+        const g = document.getElementById('galleryEl');
+        g.innerHTML = '';
+
+        packages.forEach(p => {
+          const img = document.createElement('img');
+          img.className = 'thumb';
+          img.src = p.thumb;
+          img.setAttribute('data-large', p.thumb.replace('300x200', '900x600'));
+          img.alt = p.destination;
+          img.title = p.destination;
+          g.appendChild(img);
+        });
+      }
+
+      function daysBetween(a, b) {
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+        const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+        return Math.max(0, Math.floor((utc2 - utc1) / msPerDay));
+      }
+
+      function countWeekendNights(checkIn, nights) {
+        let count = 0;
+
+        for (let i = 0; i < nights; i++) {
+          const d = new Date(checkIn.getTime());
+          d.setDate(d.getDate() + i);
+          const dow = d.getDay();
+
+          if (dow === 5 || dow === 6) count++;
+        }
+
+        return count;
+      }
+
+      function estimate() {
+        const sel = document.getElementById('pkgSelect');
+        const pid = Number(sel.value);
+        const pkg = packages.find(x => x.id === pid);
+
+        const inStr = document.getElementById('checkIn').value;
+        const outStr = document.getElementById('checkOut').value;
+        const guests = Number(document.getElementById('guests').value) || 1;
+        const promo = (document.getElementById('promo').value || '').trim().toUpperCase();
+
+        let total = 0;
+        let valid = true;
+
+        if (!pkg || !inStr || !outStr) valid = false;
+
+        const checkIn = inStr ? new Date(inStr) : null;
+        const checkOut = outStr ? new Date(outStr) : null;
+
+        if (checkIn && checkOut && checkOut <= checkIn) valid = false;
+
+        if (valid) {
+          const nights = daysBetween(checkIn, checkOut);
+          const basePerNight = Math.round(pkg.basePrice / Math.max(1, pkg.durationDays));
+
+          let sub = basePerNight * nights;
+          sub *= seasonMultiplier(pkg.season);
+
+          const weekendN = countWeekendNights(checkIn, nights);
+
+          if (weekendN > 0) sub *= (1 + 0.10);
+
+          if (guests > 2) sub *= (1 + 0.20 * (guests - 2));
+
+          switch (promo) {
+            case 'EARLYBIRD':
+              sub *= 0.90;
+              break;
+            case 'SUMMER5':
+              sub *= 0.95;
+              break;
+            case 'NONE':
+              break;
+            default:
+              break;
+          }
+
+          total = Math.max(0, Math.round(sub));
+        }
+
+        const totalEl = document.getElementById('totalVal');
+        totalEl.textContent = `₹${total.toLocaleString()}.00`;
+
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (!valid) submitBtn.classList.add('disabled');
+        else submitBtn.classList.remove('disabled');
+
+        return { valid, total };
+      }
+
+      document.addEventListener('click', (e) => {
+        const t = e.target;
+
+        if (t.matches('.thumb')) {
+          const big = t.getAttribute('data-large');
+          const modal = document.getElementById('imgModal');
+          const img = document.getElementById('modalImg');
+
+          img.src = big;
+          img.alt = t.alt;
+          img.title = t.title;
+
+          modal.classList.add('show');
+          modal.setAttribute('aria-hidden', 'false');
+        }
+      });
+
+      document.getElementById('closeModal').addEventListener('click', () => {
+        const modal = document.getElementById('imgModal');
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      });
+
+      document.getElementById('estimateBtn').addEventListener('click', () => { estimate(); });
+
+      ['pkgSelect', 'checkIn', 'checkOut', 'guests', 'promo'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => { estimate(); });
+      });
+
+      document.getElementById('bookingForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const { valid, total } = estimate();
+
+        if (!valid) return alert('Please fill required fields correctly');
+
+        alert('Booking estimated at ₹' + total.toLocaleString() + '. Proceeding to submit...');
+      });
+
+      const navLinks = document.querySelectorAll('nav a[data-scroll]');
+
+      navLinks.forEach((a) => {
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const id = a.getAttribute('href').slice(1);
+          document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      const sections = Array.from(document.querySelectorAll('main section'));
+
+      function onScrollHighlight() {
+        const y = window.scrollY + 120;
+        let current = sections[0];
+
+        for (const s of sections) {
+          if (s.offsetTop <= y) current = s;
+        }
+
+        navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href').slice(1) === current.id));
+      }
+
+      window.addEventListener('scroll', onScrollHighlight);
+
+      renderPackages();
+      populateSelect();
+      renderGallery();
+      onScrollHighlight();
+    </script>
+  </body>
+</html>
